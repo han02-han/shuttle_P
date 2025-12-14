@@ -51,7 +51,7 @@
                         <i class="bi bi-person-heart"></i>
                     </div>
                     <h6 class="mb-0 fw-bold text-dark">Data Wali Murid</h6>
-                 file </div>
+                 </div>
                 <div class="card-body p-4">
                     <div class="mb-4">
                         <label class="small text-muted text-uppercase fw-bold mb-1">Nama Orang Tua</label>

@@ -38,12 +38,6 @@
     </div>
 
     {{-- ALERT SUKSES --}}
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 border-0 mb-4" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
 
     {{-- 2. TABEL CARD --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
