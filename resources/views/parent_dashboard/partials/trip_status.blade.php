@@ -25,7 +25,6 @@
             $statusText = 'MENUNGGU';
             $statusDesc = 'Driver dalam perjalanan';
         } 
-        // [BARU] STATUS WAITING
         elseif($tripData->status == 'waiting') {
             $statusClass = 'bg-warning border border-warning shadow-sm animate__animated animate__pulse animate__infinite';
             $statusIcon = 'bi-geo-alt-fill text-dark';
@@ -80,10 +79,41 @@
         @endif
     </div>
 
+{{-- KONDISI BARU: JIKA BELUM MULAI TAPI ADA JADWAL TERENCANA --}}
+@elseif(isset($scheduleData) && $scheduleData)
+    
+    <div class="bg-light rounded-3 p-3 mb-3 border border-light border-start border-4 border-info">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-info text-white">
+                <i class="bi bi-calendar-check me-1"></i> Terjadwal
+            </span>
+            <span class="fw-bold text-dark small">{{ $scheduleData->route->name ?? 'Rute Standar' }}</span>
+        </div>
+        <div class="small text-muted">
+            <div class="mb-1">
+                <i class="bi bi-person-badge me-2 text-primary"></i> 
+                {{ $scheduleData->driver->name ?? 'Supir Belum Ditentukan' }}
+            </div>
+            <div>
+                <i class="bi bi-car-front me-2 text-primary"></i> 
+                {{ $scheduleData->shuttle->name ?? 'Kendaraan' }} ({{ $scheduleData->shuttle->plate_number ?? '-' }})
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center py-4 rounded-3 mb-3 bg-light border border-dashed">
+        <h2 class="fw-bold mb-1 text-muted fs-3">
+            <i class="bi bi-clock"></i> {{ $type == 'Pagi' ? $scheduleData->pickup_time : $scheduleData->dropoff_time }} WIB
+        </h2>
+        <p class="mb-0 text-muted fw-bold" style="font-size: 0.9rem;">Belum Dimulai</p>
+        <small class="text-muted opacity-75">Menunggu supir memulai perjalanan.</small>
+    </div>
+
 @else
+    {{-- JIKA KOSONG (TIDAK ADA TRIP & TIDAK ADA JADWAL) --}}
     <div class="text-center py-5 text-muted">
         <i class="bi bi-moon-stars fs-1 opacity-25"></i>
-        <p class="mt-2 mb-0 fw-bold">Jadwal {{ $type }} Belum Dimulai</p>
-        <small>Menunggu Driver memulai perjalanan.</small>
+        <p class="mt-2 mb-0 fw-bold">Tidak Ada Jadwal {{ $type }}</p>
+        <small>Hari ini libur atau tidak ada rute.</small>
     </div>
 @endif

@@ -34,7 +34,7 @@
         transition: transform 0.2s;
         border: 1px solid #f1f5f9;
     }
-    .card-student:active { transform: scale(0.98); }
+    .card-student:active { transform: scale(0.99); }
 
     /* Indikator Status */
     .status-stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
@@ -91,6 +91,37 @@
         border: none;
     }
     .btn-finish-header:active { transform: scale(0.95); }
+
+    /* Area Klik Info Siswa */
+    .clickable-area {
+        transition: background-color 0.2s;
+        border-radius: 12px;
+    }
+    .clickable-area:active {
+        background-color: rgba(0,0,0,0.03);
+    }
+    
+    /* Style untuk Modal Detail */
+    .detail-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 4px;
+        display: block;
+    }
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    .detail-box {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
 </style>
 
 {{-- Kalkulasi Progress --}}
@@ -143,14 +174,6 @@
         </div>
     </div>
 
-    {{-- Alert Sukses --}}
-    @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-3 d-flex align-items-center mb-3 py-2 px-3">
-            <i class="bi bi-check-circle-fill fs-5 me-2"></i>
-            <div class="small fw-bold ms-2">{{ session('success') }}</div>
-        </div>
-    @endif
-
     {{-- 2. LIST KARTU SISWA --}}
     <div class="pb-5 mb-5">
         @forelse($passengers as $p)
@@ -164,7 +187,6 @@
                 }
                 elseif($p->status == 'picked_up') {
                     $stripeClass = 'stripe-active';
-                    // Jika sore (dropoff), yang statusnya picked_up kita highlight kuning (ready to drop)
                     if($trip->type != 'pickup') $cardBg = 'bg-active'; 
                 } 
                 elseif($p->status == 'dropped_off') {
@@ -178,16 +200,24 @@
             <div class="card-student p-3 {{ $cardBg }}">
                 <div class="status-stripe {{ $stripeClass }}"></div>
                 
-                {{-- Info Siswa --}}
-                <div class="d-flex align-items-center mb-3 ps-2">
-                    <div class="me-3">
+                {{-- INFO SISWA (KLIK UNTUK MODAL) --}}
+                <div class="d-flex align-items-center mb-3 ps-2 clickable-area" 
+                     style="cursor: pointer;"
+                     data-bs-toggle="modal" 
+                     data-bs-target="#studentModal-{{ $p->id }}">
+                     
+                    <div class="me-3 position-relative">
                         @if($p->student->photo)
-                            <img src="{{ asset('storage/'.$p->student->photo) }}" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;">
+                            <img src="{{ asset('storage/'.$p->student->photo) }}" class="rounded-circle shadow-sm" style="width: 50px; height: 50px; object-fit: cover;">
                         @else
-                            <div class="avatar-circle">
+                            <div class="avatar-circle" style="width: 50px; height: 50px; font-size: 1.2rem;">
                                 {{ substr($p->student->name, 0, 1) }}
                             </div>
                         @endif
+                        {{-- Icon Info kecil --}}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info border border-white p-1">
+                            <i class="bi bi-search" style="font-size: 0.6rem;"></i>
+                        </span>
                     </div>
                     
                     <div class="flex-grow-1" style="min-width: 0;">
@@ -207,23 +237,21 @@
                         </div>
                         <div class="d-flex align-items-center text-muted small">
                             <i class="bi bi-geo-alt-fill text-danger me-1" style="font-size: 0.7rem;"></i>
-                            <span class="text-truncate">
+                            <span class="text-truncate fw-bold">
                                 {{ $p->student->complex->name ?? 'Umum' }}
                             </span>
+                            <span class="mx-1">•</span>
+                            <span class="text-primary fw-bold" style="font-size: 0.7rem;">Detail Lengkap</span>
                         </div>
                     </div>
                 </div>
 
                 {{-- TOMBOL AKSI --}}
                 <div class="ps-2">
-                    
-                    {{-- KONDISI 1: Status Masih Pending (Belum Dijemput) --}}
                     @if($p->status == 'pending')
                         <div class="row g-2">
                             <div class="col-8">
-                                {{-- LOGIKA BEDA: PAGI vs SORE --}}
                                 @if($trip->type == 'pickup')
-                                    {{-- PAGI: Ada fitur Waiting (Sampai Titik) --}}
                                     <form action="{{ route('driver.passenger.waiting', $p->id) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="btn-action btn-waiting">
@@ -231,7 +259,6 @@
                                         </button>
                                     </form>
                                 @else
-                                    {{-- SORE: Langsung Naik (Logika Lama) --}}
                                     <form action="{{ route('driver.passenger.pickup', $p->id) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="btn-action btn-pickup">
@@ -248,7 +275,6 @@
                             </div>
                         </div>
 
-                    {{-- KONDISI 2: Status Waiting (Khusus Pagi yang sudah diklik Sampai) --}}
                     @elseif($p->status == 'waiting')
                          <div class="row g-2">
                             <div class="col-8">
@@ -267,7 +293,6 @@
                             </div>
                         </div>
 
-                    {{-- KONDISI 3: Status Picked Up (Sudah Naik & Perjalanan Sore - Tombol Turun) --}}
                     @elseif($p->status == 'picked_up' && $trip->type != 'pickup') 
                         <form action="{{ route('driver.passenger.dropoff', $p->id) }}" method="POST">
                             @csrf
@@ -278,6 +303,117 @@
                     @endif
                 </div>
             </div>
+
+            {{-- ========================================== --}}
+            {{-- MODAL DETAIL SISWA LENGKAP                 --}}
+            {{-- ========================================== --}}
+            <div class="modal fade" id="studentModal-{{ $p->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content rounded-4 border-0 shadow">
+                        
+                        {{-- Header Modal --}}
+                        <div class="modal-header border-bottom-0 pb-0 bg-white sticky-top">
+                            <h5 class="modal-title fw-bold">Detail Lengkap Siswa</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            {{-- Foto & Nama Utama --}}
+                            <div class="text-center mb-4">
+                                @if($p->student->photo)
+                                    <img src="{{ asset('storage/'.$p->student->photo) }}" class="rounded-circle shadow mb-3" style="width: 110px; height: 110px; object-fit: cover; border: 4px solid #fff;">
+                                @else
+                                    <div class="avatar-circle mx-auto shadow mb-3" style="width: 110px; height: 110px; font-size: 2.5rem; border: 4px solid #fff;">
+                                        {{ substr($p->student->name, 0, 1) }}
+                                    </div>
+                                @endif
+                                <h3 class="fw-bold mb-0 text-dark">{{ $p->student->name }}</h3>
+                                <p class="text-muted small">Status: 
+                                    @if($p->status == 'pending') <span class="badge bg-secondary">Belum Dijemput</span>
+                                    @elseif($p->status == 'waiting') <span class="badge bg-warning text-dark">Driver Menunggu</span>
+                                    @elseif($p->status == 'picked_up') <span class="badge bg-primary">Di Dalam Mobil</span>
+                                    @elseif($p->status == 'dropped_off') <span class="badge bg-success">Selesai</span>
+                                    @endif
+                                </p>
+                            </div>
+
+                            {{-- BOX 1: LOKASI & ALAMAT --}}
+                            <div class="detail-box">
+                                <div class="d-flex align-items-start mb-3">
+                                    <div class="me-3">
+                                        <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-geo-alt-fill fs-5"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="detail-label">Komplek Perumahan</span>
+                                        <div class="detail-value text-danger">{{ $p->student->complex->name ?? 'Tidak ada data komplek' }}</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <span class="detail-label"><i class="bi bi-signpost-2 me-1"></i> Catatan Alamat / Rumah</span>
+                                    <div class="p-2 bg-white border rounded text-dark mt-1">
+                                        @if(!empty($p->student->address_note))
+                                            {{ $p->student->address_note }}
+                                        @else
+                                            <span class="text-muted fst-italic small">Tidak ada catatan alamat.</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- BOX 2: INFORMASI ORANG TUA --}}
+                            <div class="detail-box">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="me-3">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="bi bi-people-fill fs-5"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="detail-label">Wali Murid (Orang Tua)</span>
+                                        <div class="detail-value">{{ $p->student->parent->name ?? 'Data tidak tersedia' }}</div>
+                                    </div>
+                                </div>
+                                
+                                {{-- Tombol Kontak Ortu --}}
+                                @if(!empty($p->student->parent->phone))
+                                    <div class="row g-2 mt-2">
+                                        <div class="col-6">
+                                            <a href="tel:{{ $p->student->parent->phone }}" class="btn btn-outline-dark w-100 btn-sm fw-bold">
+                                                <i class="bi bi-telephone-fill me-1"></i> Telepon
+                                            </a>
+                                        </div>
+                                        <div class="col-6">
+                                            @php
+                                                // Format nomor HP ke format WA (62...)
+                                                $waNum = $p->student->parent->phone;
+                                                if(substr($waNum, 0, 1) == '0') {
+                                                    $waNum = '62' . substr($waNum, 1);
+                                                }
+                                            @endphp
+                                            <a href="https://wa.me/{{ $waNum }}?text=Halo%20saya%20Driver%20Jemputan%20{{ $p->student->name }}" target="_blank" class="btn btn-success w-100 btn-sm fw-bold text-white">
+                                                <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                                            </a>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="text-muted small fst-italic border-top pt-2">
+                                        <i class="bi bi-telephone-x me-1"></i> Nomor telepon orang tua tidak tersedia.
+                                    </div>
+                                @endif
+                            </div>
+
+                        </div>
+                        <div class="modal-footer border-top-0 pt-0">
+                            <button type="button" class="btn btn-secondary w-100 rounded-pill fw-bold" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{-- AKHIR MODAL --}}
+
         @empty
             <div class="text-center py-5">
                 <i class="bi bi-people text-muted display-1 opacity-25"></i>
@@ -302,6 +438,11 @@
 
         function startAutoRefresh() {
             const timer = setInterval(() => {
+                // Jangan refresh jika modal sedang terbuka
+                if(document.querySelector('.modal.show')) {
+                    return; 
+                }
+
                 timeLeft--;
                 if (progressBar) {
                     progressBar.style.width = ((refreshTime - timeLeft) / refreshTime) * 100 + '%';

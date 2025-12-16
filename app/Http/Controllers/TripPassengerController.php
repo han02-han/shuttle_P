@@ -15,6 +15,7 @@ class TripPassengerController extends Controller
      */
     public function process($tripId)
     {
+        // Pastikan relasi student.parent dimuat untuk info Wali Murid di Modal
         $trip = Trip::with([
             'passengers.student.parent',
             'passengers.student.complex',
@@ -113,6 +114,9 @@ class TripPassengerController extends Controller
         $trip = Trip::findOrFail($tripId);
         
         if ($trip->type == 'pickup') { 
+            // Jika penjemputan pagi selesai, otomatis set dropoff_time buat yang sudah dijemput?
+            // Biasanya trip pagi selesai saat sampai sekolah.
+            // Di sini kita anggap semua yang picked_up jadi dropped_off (turun di sekolah)
             $trip->passengers()->where('status', 'picked_up')->update([
                 'status' => 'dropped_off',
                 'dropped_at' => Carbon::now()

@@ -570,7 +570,7 @@
             </div>
             
             <div class="border-top border-secondary border-opacity-25 mt-5 pt-4 text-center">
-                <small class="text-secondary">&copy; {{ date('Y') }} ShuttleApp System. Dibuat dengan <i class="bi bi-heart-fill text-danger mx-1"></i> untuk Pendidikan Indonesia.</small>
+                <small class="text-secondary">&copy; {{ date('Y') }} HepiGo System.</small>
             </div>
         </div>
     </footer>

@@ -8,34 +8,30 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Student;
 use App\Models\TripPassenger;
 use App\Models\Trip;
-use App\Models\Announcement; // <--- 1. Import Model Announcement
+use App\Models\Announcement; 
 use Carbon\Carbon;
 
 class ParentDashboardController extends Controller
 {
-    // ====================================================
-    // DASHBOARD & UTAMA
-    // ====================================================
     public function index()
     {
         $parent = Auth::user();
         if ($parent->role !== 'parent') return redirect('/')->with('error', 'Akses khusus Wali Murid.');
 
-        // --- AMBIL PENGUMUMAN (BARU) ---
-        // Mengambil pengumuman aktif untuk role 'parent' atau 'all'
-        // Filter tambahan: whereDate('created_at', Carbon::today()) -> Hanya muncul hari ini
+        // --- AMBIL PENGUMUMAN ---
         $announcements = Announcement::where('is_active', true)
                             ->whereIn('target_role', ['all', 'parent'])
-                            ->whereDate('created_at', Carbon::today()) // <--- LOGIKA HILANG BESOK
+                            ->whereDate('created_at', Carbon::today())
                             ->latest()
                             ->get();
 
         // --- LOGIKA DATA SISWA & TRIP ---
         $students = Student::where('parent_id', $parent->id)->get();
         $today = Carbon::today();
+        $dayName = $today->format('l'); // Mengambil nama hari (Monday, Tuesday, dst)
 
         foreach ($students as $student) {
-            // Ambil Trip Pagi (Pickup)
+            // 1. Cek Trip Pagi (Real-time)
             $student->trip_pagi = TripPassenger::where('student_id', $student->id)
                 ->whereHas('trip', function($q) use ($today) {
                     $q->where('type', 'pickup')
@@ -46,7 +42,16 @@ class ParentDashboardController extends Controller
                 ->latest()
                 ->first();
 
-            // Ambil Trip Sore (Dropoff)
+            // JIKA TIDAK ADA TRIP PAGI -> AMBIL JADWAL (SCHEDULE)
+            if (!$student->trip_pagi) {
+                $student->schedule_pagi = $student->schedules()
+                    ->where('day_of_week', $dayName)
+                    ->whereNotNull('pickup_time') // Pastikan ada jam jemput
+                    ->with(['driver', 'shuttle', 'route'])
+                    ->first();
+            }
+
+            // 2. Cek Trip Sore (Real-time)
             $student->trip_sore = TripPassenger::where('student_id', $student->id)
                 ->whereHas('trip', function($q) use ($today) {
                     $q->where('type', 'dropoff')
@@ -56,16 +61,25 @@ class ParentDashboardController extends Controller
                 ->with(['trip.driver', 'trip.shuttle', 'trip.route'])
                 ->latest()
                 ->first();
+
+            // JIKA TIDAK ADA TRIP SORE -> AMBIL JADWAL (SCHEDULE)
+            if (!$student->trip_sore) {
+                $student->schedule_sore = $student->schedules()
+                    ->where('day_of_week', $dayName)
+                    ->whereNotNull('dropoff_time') // Pastikan ada jam antar
+                    ->with(['driver', 'shuttle', 'route'])
+                    ->first();
+            }
         }
 
-        // Kirim $announcements ke view
         return view('parent_dashboard.index', compact('students', 'announcements'));
     }
 
+    // ... (SISA METHOD LAIN TETAP SAMA SEPERTI FILE ASLI) ...
+    
     public function ajaxStatus($studentId)
     {
         $parent = Auth::user();
-        // Validasi kepemilikan siswa
         $student = Student::where('id', $studentId)->where('parent_id', $parent->id)->firstOrFail();
         $today = Carbon::today();
 
@@ -90,7 +104,7 @@ class ParentDashboardController extends Controller
             ]
         ]);
     }
-    
+
     public function myChildren()
     {
         $parent = Auth::user();
@@ -98,24 +112,14 @@ class ParentDashboardController extends Controller
         return view('parent_dashboard.children', compact('students'));
     }
 
-    // ====================================================
-    // PERBAIKAN DI SINI (SOLUSI AKSES DITOLAK)
-    // ====================================================
     public function showTripDetail($passengerId)
     {
         $passenger = TripPassenger::with(['trip.driver', 'trip.shuttle', 'trip.route', 'student'])->findOrFail($passengerId);
-        
-        // FIX: Gunakan intval() untuk memaksa kedua ID menjadi angka (Integer).
         if (intval($passenger->student->parent_id) != intval(Auth::id())) {
             return redirect()->route('parents.dashboard')->with('error', 'Akses ditolak.');
         }
-
         return view('parent_dashboard.trip_detail', compact('passenger'));
     }
-
-    // ====================================================
-    // FITUR LAINNYA
-    // ====================================================
 
     public function setAbsent(Request $request, $studentId)
     {
@@ -162,49 +166,26 @@ class ParentDashboardController extends Controller
         return view('parent_dashboard.history', compact('histories'));
     }
 
-    // --- FITUR EDIT ANAK OLEH ORANG TUA ---
-
-    // 1. Tampilkan Form Edit
     public function editChild($id)
     {
-        // Validasi: Pastikan anak ini milik orang tua yang login
-        $student = Student::where('id', $id)
-                    ->where('parent_id', Auth::id())
-                    ->firstOrFail();
-        
+        $student = Student::where('id', $id)->where('parent_id', Auth::id())->firstOrFail();
         return view('parent_dashboard.edit_child', compact('student'));
     }
 
-    // 2. Proses Update Data
     public function updateChild(Request $request, $id)
     {
-        $student = Student::where('id', $id)
-                    ->where('parent_id', Auth::id())
-                    ->firstOrFail();
-
-        // Validasi Input (Hanya detail alamat dan foto)
+        $student = Student::where('id', $id)->where('parent_id', Auth::id())->firstOrFail();
         $request->validate([
             'address_note' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', 
         ]);
-
-        $data = [
-            'address_note' => $request->address_note,
-        ];
-
-        // Logic Upload Foto
+        $data = ['address_note' => $request->address_note];
         if ($request->hasFile('photo')) {
-            // Hapus foto lama jika ada
-            if ($student->photo) {
-                Storage::disk('public')->delete($student->photo);
-            }
-            // Simpan foto baru
+            if ($student->photo) Storage::disk('public')->delete($student->photo);
             $path = $request->file('photo')->store('student-photos', 'public');
             $data['photo'] = $path;
         }
-
         $student->update($data);
-
         return redirect()->route('parents.my_children')->with('success', 'Data anak berhasil diperbarui.');
     }
 }
