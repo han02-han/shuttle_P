@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container-fluid px-0">
 
     {{-- 1. HEADER & PENCARIAN --}}
@@ -63,6 +65,7 @@
                     <tbody>
                         @forelse($parents as $parent)
                         <tr>
+                            {{-- Nama & ID --}}
                             <td class="ps-4 py-3">
                                 <div class="d-flex align-items-center">
                                     {{-- Avatar Inisial --}}
@@ -77,25 +80,34 @@
                                     </div>
                                 </div>
                             </td>
+
+                            {{-- Kontak --}}
                             <td>
                                 <div class="d-flex align-items-center text-muted">
                                     <i class="bi bi-envelope me-2"></i> {{ $parent->email }}
                                 </div>
                             </td>
+
+                            {{-- WA --}}
                             <td>
                                 <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill fw-normal">
                                     <i class="bi bi-whatsapp me-1"></i> {{ $parent->phone }}
                                 </span>
                             </td>
+
+                            {{-- Aksi --}}
                             <td class="text-end pe-4">
                                 <div class="btn-group">
                                     <a href="{{ route('parents.edit', $parent->id) }}" class="btn btn-sm btn-light text-primary border shadow-sm rounded-start" title="Edit Data">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     
-                                    <form action="{{ route('parents.destroy', $parent->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data Wali Murid {{ $parent->name }}?')">
+                                    {{-- FORM HAPUS DENGAN VALIDASI SWEETALERT --}}
+                                    {{-- 1. Beri ID unik pada form --}}
+                                    <form action="{{ route('parents.destroy', $parent->id) }}" method="POST" class="d-inline" id="delete-form-{{ $parent->id }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Data">
+                                        {{-- 2. Ubah type jadi button dan tambah onclick --}}
+                                        <button type="button" onclick="confirmDeleteParent('{{ $parent->id }}', '{{ $parent->name }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Data">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -143,5 +155,32 @@
     .table-hover tbody tr:hover {
         background-color: #f8f9fa;
     }
+
+    /* SweetAlert Custom Font */
+    .swal2-popup {
+        font-family: inherit !important;
+        border-radius: 16px !important;
+    }
 </style>
+
+<script>
+    // FUNGSI KONFIRMASI HAPUS WALI MURID
+    function confirmDeleteParent(id, name) {
+        Swal.fire({
+            title: 'Hapus Wali Murid?',
+            text: `Apakah Anda yakin ingin menghapus data Wali Murid "${name}"? Data yang dihapus tidak dapat dikembalikan.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626', // Merah
+            cancelButtonColor: '#6c757d',  // Abu-abu
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+</script>
 @endsection

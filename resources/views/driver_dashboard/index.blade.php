@@ -121,7 +121,7 @@
         </div>
     </div>
 
-    {{-- 2. SECTION PENGUMUMAN (BARU) --}}
+    {{-- 2. SECTION PENGUMUMAN --}}
     @if(isset($announcements) && $announcements->count() > 0)
     <div class="mb-4">
         <h6 class="fw-bold text-secondary mb-3 ps-2 border-start border-primary border-4" style="line-height: 1;">
@@ -132,9 +132,7 @@
             <div class="col-md-12">
                 <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
                     <div class="card-body py-3 position-relative">
-                        {{-- Dekorasi Garis Biru di Kiri --}}
                         <div class="position-absolute top-0 start-0 bottom-0 bg-primary" style="width: 4px;"></div>
-                        
                         <div class="ps-2">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="fw-bold text-primary mb-0">{{ $info->title }}</h6>
@@ -154,7 +152,6 @@
 
     {{-- 3. DAFTAR TUGAS --}}
     @if($schedules->isEmpty())
-        {{-- State Kosong --}}
         <div class="text-center py-5">
             <div class="bg-light rounded-circle d-inline-flex p-4 mb-3 text-secondary">
                 <i class="bi bi-mug-hot display-4"></i>
@@ -171,7 +168,7 @@
 
     @foreach($schedules as $schedule)
         <div class="card-task">
-            {{-- A. HEADER CARD (Warna sesuai tipe) --}}
+            {{-- A. HEADER CARD --}}
             <div class="task-header {{ $schedule->type == 'pickup' ? 'header-pickup' : 'header-dropoff' }}">
                 <div class="d-flex align-items-center gap-2">
                     @if($schedule->type == 'pickup')
@@ -181,7 +178,6 @@
                     @endif
                 </div>
                 
-                {{-- Status Label Kecil --}}
                 @if($schedule->today_trip)
                     @if($schedule->today_trip->status == 'finished')
                         <span class="badge bg-success"><i class="bi bi-check-lg"></i> Selesai</span>
@@ -211,7 +207,7 @@
                     </div>
                 </div>
 
-                {{-- C. TOMBOL AKSI (Full Width di Bawah) --}}
+                {{-- C. TOMBOL AKSI --}}
                 <div class="mt-4">
                     @if($schedule->today_trip)
                         @if($schedule->today_trip->status == 'finished')
@@ -225,7 +221,9 @@
                             </a>
                         @endif
                     @else
-                        <form action="{{ route('trips.store') }}" method="POST">
+                        {{-- FORM MULAI PERJALANAN (UPDATED) --}}
+                        {{-- 1. Berikan ID Unik pada form berdasarkan ID Schedule --}}
+                        <form id="form-start-{{ $schedule->id }}" action="{{ route('trips.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="driver_id" value="{{ Auth::id() }}">
                             <input type="hidden" name="shuttle_id" value="{{ $schedule->shuttle_id }}">
@@ -233,7 +231,8 @@
                             <input type="hidden" name="date" value="{{ $todayDate }}">
                             <input type="hidden" name="type" value="{{ $schedule->type }}">
                             
-                            <button type="submit" class="btn-action btn-start" onclick="return confirm('Mulai perjalanan rute ini?');">
+                            {{-- 2. Button Type jadi Button, panggil fungsi onclick custom --}}
+                            <button type="button" class="btn-action btn-start" onclick="confirmStart('{{ $schedule->id }}', '{{ $schedule->route->name }}')">
                                 <i class="bi bi-play-circle-fill"></i> Mulai Perjalanan
                             </button>
                         </form>
@@ -243,18 +242,50 @@
         </div>
     @endforeach
 
-    <div style="height: 60px;"></div> {{-- Spacer Footer --}}
+    <div style="height: 60px;"></div>
 </div>
 
-{{-- SCRIPT: JAM & REFRESH (60 DETIK) --}}
+{{-- SCRIPT: JAM, REFRESH & VALIDASI SWEETALERT --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+    // 1. Fungsi Validasi Mulai Perjalanan
+    function confirmStart(scheduleId, routeName) {
+        Swal.fire({
+            title: 'Mulai Perjalanan?',
+            text: "Pastikan Anda siap berangkat untuk rute: " + routeName,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2563eb', // Warna Biru
+            cancelButtonColor: '#64748b',  // Warna Abu-abu
+            confirmButtonText: 'Ya, Berangkat!',
+            cancelButtonText: 'Nanti Dulu',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Tampilkan loading sebentar sebelum submit (opsional, untuk efek visual)
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Selamat bekerja!',
+                    timer: 1000,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading()
+                    }
+                }).then(() => {
+                    // Cari form berdasarkan ID unik dan submit
+                    document.getElementById('form-start-' + scheduleId).submit();
+                });
+            }
+        })
+    }
+
+    // 2. Logic Clock & Refresh
     document.addEventListener('DOMContentLoaded', function() {
-        // Config
         const refreshTime = 60; 
         let timeLeft = refreshTime;
         const progressBar = document.getElementById('refreshBar');
 
-        // Clock Update
         function updateClock() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\./g, ':');
@@ -262,7 +293,6 @@
             if(el) el.textContent = timeString;
         }
 
-        // Auto Refresh Logic
         function startAutoRefresh() {
             const timer = setInterval(() => {
                 timeLeft--;
@@ -277,14 +307,12 @@
             }, 1000);
         }
 
-        // Scroll Restore
         const scrollPos = sessionStorage.getItem('scrollPos');
         if (scrollPos) {
             window.scrollTo(0, parseInt(scrollPos));
             sessionStorage.removeItem('scrollPos');
         }
 
-        // Init
         setInterval(updateClock, 1000);
         updateClock();
         startAutoRefresh();

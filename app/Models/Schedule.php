@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Schedule extends Model
 {
@@ -30,10 +31,16 @@ class Schedule extends Model
         return $this->belongsTo(Shuttle::class); 
     }
 
-    // --- RELASI BARU (PENTING) ---
-    // Jadwal sekarang terhubung langsung ke Siswa (Many-to-Many)
-    // Data ini disimpan di tabel pivot 'schedule_student'
     public function students() {
         return $this->belongsToMany(Student::class, 'schedule_student');
+    }
+
+    // --- TAMBAHAN BARU ---
+
+    /**
+     * Relasi ke semua history perjalanan dari jadwal ini
+     */
+    public function trips() {
+        return $this->hasMany(Trip::class);
     }
 }

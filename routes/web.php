@@ -58,10 +58,22 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // --- SHARED RESOURCES (Bisa Diakses Admin & Driver) ---
-    // 1. Trip Resource (Agar driver bisa akses 'store' utk mulai trip)
+    
+    // [Route Manual: Finish Trip]
+    Route::post('trips/{id}/finish', [TripPassengerController::class, 'finishTrip'])->name('trips.finish');
+
+    // [PERBAIKAN UTAMA: Route Manual Status Penumpang]
+    // Menambahkan route 'pickup', 'dropoff', 'waiting', 'skip', DAN 'absent'
+    Route::post('/passengers/{id}/pickup', [TripPassengerController::class, 'pickup'])->name('passengers.pickup');
+    Route::post('/passengers/{id}/dropoff', [TripPassengerController::class, 'dropoff'])->name('passengers.dropoff');
+    Route::post('/passengers/{id}/waiting', [TripPassengerController::class, 'waiting'])->name('passengers.waiting');
+    Route::post('/passengers/{id}/skip', [TripPassengerController::class, 'skip'])->name('passengers.skip');
+    Route::post('/passengers/{id}/absent', [TripPassengerController::class, 'absent'])->name('passengers.absent'); // <-- INI YANG DITAMBAHKAN
+
+    // 1. Trip Resource
     Route::resource('trips', TripController::class); 
     
-    // 2. API Get Siswa by Rute (Untuk Select Box di Jadwal)
+    // 2. API Get Siswa by Rute
     Route::get('/get-students-by-route/{route_id}', [ScheduleController::class, 'getStudentsByRoute'])->name('api.get_students');
 
 
@@ -81,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('drivers', DriverController::class);
         Route::resource('parents', ParentController::class);
         
-        // CRUD Students & PENCARIAN SISWA (Baru)
+        // CRUD Students & PENCARIAN SISWA
         Route::resource('students', StudentController::class);
         Route::get('/search-student', [StudentController::class, 'search'])->name('students.search');
         Route::post('/find-student', [StudentController::class, 'find'])->name('students.find');
@@ -89,14 +101,14 @@ Route::middleware(['auth'])->group(function () {
         // --- MANAJEMEN JADWAL ---
         Route::resource('schedules', ScheduleController::class);
         
-        // Fitur Bulk Edit (Edit Rangkaian)
+        // Fitur Bulk Edit
         Route::get('/schedules/bulk-edit/{id}', [ScheduleController::class, 'editBulk'])->name('schedules.editBulk');
         Route::put('/schedules/bulk-update/{id}', [ScheduleController::class, 'updateBulk'])->name('schedules.updateBulk');
         
-        // [BARU] Hapus Rangkaian (Bulk Delete)
+        // Hapus Rangkaian
         Route::delete('/schedules/bulk-delete/{id}', [ScheduleController::class, 'destroyBulk'])->name('schedules.destroyBulk');
 
-        // AJAX Helpers (Cek Bentrok & Komplek)
+        // AJAX Helpers
         Route::post('/check-availability', [ScheduleController::class, 'checkAvailability'])->name('schedules.check');
         Route::get('/get-complexes/{route_id}', [ScheduleController::class, 'getComplexesByRoute'])->name('api.get_complexes');
        
@@ -119,6 +131,8 @@ Route::middleware(['auth'])->group(function () {
 
         // --- OPERASIONAL PERJALANAN ---
         Route::get('/trip/{tripId}/process', [TripPassengerController::class, 'process'])->name('driver.trip.process');
+        
+        // Route duplikat khusus driver
         Route::post('/passenger/{id}/waiting', [TripPassengerController::class, 'waiting'])->name('driver.passenger.waiting');
         Route::post('/passenger/{id}/pickup', [TripPassengerController::class, 'pickup'])->name('driver.passenger.pickup');
         Route::post('/passenger/{id}/skip', [TripPassengerController::class, 'skip'])->name('driver.passenger.skip');
@@ -135,7 +149,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [ParentDashboardController::class, 'index'])->name('parents.dashboard');
         Route::get('/my-children', [ParentDashboardController::class, 'myChildren'])->name('parents.my_children');
         
-        // Edit Data Anak (Foto & Alamat)
+        // Edit Data Anak
         Route::get('/my-children/{id}/edit', [ParentDashboardController::class, 'editChild'])->name('parents.children.edit');
         Route::put('/my-children/{id}', [ParentDashboardController::class, 'updateChild'])->name('parents.children.update');
 

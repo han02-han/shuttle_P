@@ -9,6 +9,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         :root {
             --primary: #2563eb;
@@ -385,6 +387,12 @@
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, var(--primary-dark), #f59e0b);
         }
+
+        /* SweetAlert Custom Font */
+        .swal2-popup {
+            font-family: 'Poppins', sans-serif !important;
+            border-radius: 16px !important;
+        }
     </style>
 </head>
 <body>
@@ -421,10 +429,14 @@
                             <i class="bi bi-person-circle"></i> Profil Saya
                         </a>
                     </li>
+                    
+                    {{-- LOGOUT MOBILE --}}
                     <li class="nav-item d-lg-none">
-                        <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Keluar aplikasi?')">
+                        {{-- ID Form Ditambahkan --}}
+                        <form action="{{ route('logout') }}" method="POST" id="logoutFormMobile">
                             @csrf
-                            <button class="btn btn-danger btn-logout-mobile">
+                            {{-- Type button, onclick ditambahkan --}}
+                            <button type="button" onclick="confirmLogout('logoutFormMobile')" class="btn btn-danger btn-logout-mobile">
                                 <i class="bi bi-box-arrow-right me-2"></i> Keluar
                             </button>
                         </form>
@@ -445,10 +457,15 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item py-2" href="{{ route('profile.index') }}"><i class="bi bi-person me-2"></i> Profil Saya</a></li>
                             <li><hr class="dropdown-divider"></li>
+                            {{-- LOGOUT DESKTOP --}}
                             <li>
-                                <form action="{{ route('logout') }}" method="POST">
+                                {{-- ID Form Ditambahkan --}}
+                                <form action="{{ route('logout') }}" method="POST" id="logoutFormDesktop">
                                     @csrf
-                                    <button class="dropdown-item py-2 text-danger"><i class="bi bi-box-arrow-right me-2"></i> Keluar</button>
+                                    {{-- Type button, onclick ditambahkan --}}
+                                    <button type="button" onclick="confirmLogout('logoutFormDesktop')" class="dropdown-item py-2 text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Keluar
+                                    </button>
                                 </form>
                             </li>
                         </ul>
@@ -497,6 +514,26 @@
                 }
             });
         });
+
+        // --- SCRIPT VALIDASI LOGOUT SWEETALERT ---
+        function confirmLogout(formId) {
+            Swal.fire({
+                title: 'Konfirmasi Keluar',
+                text: "Apakah Anda yakin ingin mengakhiri sesi?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444', // Merah sesuai tema
+                cancelButtonColor: '#2563eb', // Biru sesuai tema
+                confirmButtonText: 'Ya, Keluar',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit form spesifik berdasarkan ID (Mobile atau Desktop)
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
     </script>
 </body>
 </html>

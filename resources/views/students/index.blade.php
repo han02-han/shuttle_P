@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container-fluid px-0">
     
     {{-- 1. HEADER & PENCARIAN --}}
@@ -38,6 +40,12 @@
     </div>
 
     {{-- ALERT SUKSES --}}
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 border-0 mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     {{-- 2. TABEL CARD --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -107,9 +115,12 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     
-                                    <form action="{{ route('students.destroy', $student->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data siswa {{ $student->name }}?')">
+                                    {{-- FORM HAPUS DENGAN VALIDASI SWEETALERT --}}
+                                    {{-- 1. Beri ID unik pada form --}}
+                                    <form action="{{ route('students.destroy', $student->id) }}" method="POST" class="d-inline" id="delete-form-{{ $student->id }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Siswa">
+                                        {{-- 2. Ubah type jadi button dan tambah onclick --}}
+                                        <button type="button" onclick="confirmDeleteStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Siswa">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -157,5 +168,32 @@
     .table-hover tbody tr:hover {
         background-color: #f8f9fa;
     }
+
+    /* SweetAlert Custom Font */
+    .swal2-popup {
+        font-family: inherit !important;
+        border-radius: 16px !important;
+    }
 </style>
+
+<script>
+    // FUNGSI KONFIRMASI HAPUS SISWA
+    function confirmDeleteStudent(id, name) {
+        Swal.fire({
+            title: 'Hapus Siswa?',
+            text: `Apakah Anda yakin ingin menghapus data siswa "${name}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626', // Merah
+            cancelButtonColor: '#6c757d',  // Abu-abu
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+</script>
 @endsection

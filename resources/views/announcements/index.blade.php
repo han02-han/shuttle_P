@@ -57,9 +57,14 @@
                                 </form>
                             </td>
                             <td class="text-end pe-4">
-                                <form action="{{ route('announcements.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus pengumuman ini?');">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-light text-danger border shadow-sm rounded-3"><i class="bi bi-trash"></i></button>
+                                {{-- PERUBAHAN DI SINI: Form diberi ID unik dan onsubmit dihapus --}}
+                                <form id="delete-form-{{ $item->id }}" action="{{ route('announcements.destroy', $item->id) }}" method="POST" class="d-inline">
+                                    @csrf 
+                                    @method('DELETE')
+                                    {{-- Tombol diubah jadi type="button" dan memanggil fungsi JS --}}
+                                    <button type="button" onclick="confirmDelete('{{ $item->id }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-3">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>
@@ -75,4 +80,29 @@
         </div>
     </div>
 </div>
+
+{{-- SCRIPT UNTUK SWEETALERT --}}
+{{-- Pastikan section ini dirender di layout utama Anda, misal @stack('scripts') atau taruh sebelum @endsection --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Hapus Pengumuman?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true // Membalik posisi tombol agar tombol batal di kiri (opsional)
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Cari form berdasarkan ID dan submit
+                document.getElementById('delete-form-' + id).submit();
+            }
+        })
+    }
+</script>
+
 @endsection

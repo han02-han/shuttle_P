@@ -1,3 +1,5 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div id="sidebar-wrapper">
     <div class="sidebar-heading">
         <div class="brand-wrapper d-flex align-items-center justify-content-start">
@@ -134,7 +136,6 @@
                         <i class="bi bi-people"></i> <span class="menu-text">Wali Murid</span>
                     </a>
                     <a href="{{ route('students.index') }}" class="list-group-item sub-item {{ request()->routeIs('students.*') ? 'active' : '' }}" title="Data Siswa">
-                        {{-- IKON DIGANTI: dari 'bi-backpack' menjadi 'bi-mortarboard-fill' (Topi Toga) --}}
                         <i class="bi bi-mortarboard-fill"></i> <span class="menu-text">Data Siswa</span>
                     </a>
                  </div>
@@ -143,10 +144,13 @@
         </div>
     </div>
 
+    {{-- MODIFIKASI DIMULAI DARI SINI --}}
     <div class="sidebar-footer p-3 border-top bg-white">
-        <form action="{{ route('logout') }}" method="POST">
+        {{-- Menambahkan ID pada form --}}
+        <form action="{{ route('logout') }}" method="POST" id="logoutForm">
             @csrf
-            <button type="submit" class="btn btn-logout w-100 d-flex align-items-center justify-content-center gap-2" title="Keluar Aplikasi">
+            {{-- Mengubah type="button" dan menambah onclick --}}
+            <button type="button" onclick="confirmLogout()" class="btn btn-logout w-100 d-flex align-items-center justify-content-center gap-2" title="Keluar Aplikasi">
                 <i class="bi bi-box-arrow-left"></i> 
                 <span class="menu-text">Keluar</span>
             </button>
@@ -173,6 +177,30 @@
             });
         }
     });
+
+    // --- FUNGSI BARU UNTUK KONFIRMASI LOGOUT ---
+    function confirmLogout() {
+        Swal.fire({
+            title: 'Konfirmasi Keluar',
+            text: "Apakah Anda yakin ingin mengakhiri sesi ini?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626', // Warna Merah sesuai tombol logout
+            cancelButtonColor: '#4f46e5', // Warna Indigo/Primary
+            confirmButtonText: 'Ya, Keluar!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true, // Tombol batal di kiri, hapus di kanan (opsional)
+            borderRadius: '12px',
+            customClass: {
+                popup: 'my-swal-popup', // Class custom jika ingin styling tambahan
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit form secara manual jika user klik Ya
+                document.getElementById('logoutForm').submit();
+            }
+        });
+    }
 </script>
 
 <style>
@@ -317,4 +345,13 @@
     body.sidebar-minimized .collapse.show { display: none !important; }
     body.sidebar-minimized .btn-toggle-sidebar i { transform: rotate(180deg); }
     body.sidebar-minimized .btn-logout { width: 40px; height: 40px; border-radius: 50%; padding: 0; }
+
+    /* Styling Tambahan untuk SweetAlert agar fontnya pas */
+    .swal2-popup {
+        font-family: inherit !important;
+        border-radius: 16px !important;
+    }
+    .swal2-title {
+        font-size: 1.25rem !important;
+    }
 </style>

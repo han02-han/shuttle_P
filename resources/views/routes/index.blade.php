@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container-fluid px-0">
 
     {{-- 1. HEADER HALAMAN --}}
@@ -76,9 +78,12 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     
-                                    <form action="{{ route('routes.destroy', $route->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus rute {{ $route->name }}? Data terkait mungkin akan terpengaruh.')">
+                                    {{-- FORM HAPUS DENGAN VALIDASI SWEETALERT --}}
+                                    {{-- 1. Beri ID unik pada form --}}
+                                    <form action="{{ route('routes.destroy', $route->id) }}" method="POST" class="d-inline" id="delete-form-{{ $route->id }}">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Rute">
+                                        {{-- 2. Ubah type jadi button dan tambah onclick --}}
+                                        <button type="button" onclick="confirmDeleteRoute('{{ $route->id }}', '{{ $route->name }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Rute">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -121,5 +126,32 @@
     .table-hover tbody tr:hover {
         background-color: #f8f9fa;
     }
+
+    /* SweetAlert Custom Font */
+    .swal2-popup {
+        font-family: inherit !important;
+        border-radius: 16px !important;
+    }
 </style>
+
+<script>
+    // FUNGSI KONFIRMASI HAPUS RUTE
+    function confirmDeleteRoute(id, name) {
+        Swal.fire({
+            title: 'Hapus Rute?',
+            text: `Apakah Anda yakin ingin menghapus rute "${name}"? Data terkait seperti jadwal mungkin akan terpengaruh.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626', // Merah
+            cancelButtonColor: '#6c757d',  // Abu-abu
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+</script>
 @endsection

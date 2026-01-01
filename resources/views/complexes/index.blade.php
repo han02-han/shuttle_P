@@ -1,6 +1,9 @@
 @extends('layouts.admin')
 
 @section('content')
+{{-- Load SweetAlert2 Library --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container-fluid px-0">
 
     {{-- 1. HEADER HALAMAN --}}
@@ -15,6 +18,7 @@
             <i class="bi bi-plus-lg me-2"></i> Tambah Komplek
         </a>
     </div>
+
 
     {{-- 2. TABEL CARD --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -62,9 +66,12 @@
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     
-                                    <form action="{{ route('complexes.destroy', $complex->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus komplek {{ $complex->name }}? Perhatian: Data siswa di komplek ini mungkin akan terdampak.')">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Komplek">
+                                    {{-- FORM DELETE DENGAN ID UNIK --}}
+                                    <form id="delete-form-{{ $complex->id }}" action="{{ route('complexes.destroy', $complex->id) }}" method="POST" class="d-inline">
+                                        @csrf 
+                                        @method('DELETE')
+                                        {{-- Tombol type="button" memanggil fungsi JS --}}
+                                        <button type="button" onclick="confirmDelete('{{ $complex->id }}', '{{ $complex->name }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Komplek">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -88,7 +95,7 @@
                 </table>
             </div>
 
-            {{-- Pagination (Otomatis muncul jika data > limit per halaman) --}}
+            {{-- Pagination --}}
             @if(method_exists($complexes, 'hasPages') && $complexes->hasPages())
                 <div class="card-footer bg-white py-3 border-top">
                     {{ $complexes->links() }}
@@ -101,11 +108,30 @@
 
 <style>
     /* Styling agar baris tabel nyaman dibaca */
-    .table > :not(caption) > * > * {
-        padding: 1rem 0.5rem;
-    }
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
-    }
+    .table > :not(caption) > * > * { padding: 1rem 0.5rem; }
+    .table-hover tbody tr:hover { background-color: #f8f9fa; }
 </style>
+
+{{-- SCRIPT VALIDASI DELETE --}}
+<script>
+    function confirmDelete(id, name) {
+        Swal.fire({
+            title: 'Hapus Komplek?',
+            text: "Anda akan menghapus: " + name + ". Data siswa di komplek ini mungkin akan kehilangan referensi alamat!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit form secara programatis jika user klik Ya
+                document.getElementById('delete-form-' + id).submit();
+            }
+        })
+    }
+</script>
+
 @endsection

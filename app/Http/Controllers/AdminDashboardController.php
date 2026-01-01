@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\Shuttle;
 use App\Models\Route;
 use App\Models\Trip; 
+use App\Models\Schedule; 
 use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
@@ -20,12 +21,18 @@ class AdminDashboardController extends Controller
         $totalRoutes = Route::count();
         $activeShuttles = Shuttle::where('status', 'available')->count();
 
-        // 2. Ambil Data Trip HARI INI
-        // PERBAIKAN: Tambahkan 'route.complexes' di dalam with()
-        $todaysTrips = Trip::with(['driver', 'route.complexes', 'shuttle'])
-                        ->withCount('passengers')
-                        ->whereDate('date', Carbon::today()) 
-                        ->orderByRaw("FIELD(status, 'active', 'scheduled', 'finished')")
+        // 2. Ambil JADWAL HARI INI
+        $todayName = Carbon::now()->format('l'); // Ex: Monday, Tuesday...
+
+        $todaysSchedules = Schedule::with(['driver', 'route.complexes', 'shuttle'])
+                        ->withCount('students') // Hitung jumlah siswa
+                        ->where('day_of_week', $todayName)
+                        ->orderBy('pickup_time', 'asc')
+                        ->get();
+
+        // 3. Ambil TRIP HARI INI (Ambil terpisah untuk menghindari error relasi)
+        $todaysTrips = Trip::withCount('passengers')
+                        ->whereDate('date', Carbon::today())
                         ->get();
 
         return view('admin_dashboard.index', compact(
@@ -33,7 +40,8 @@ class AdminDashboardController extends Controller
             'totalDrivers', 
             'totalRoutes', 
             'activeShuttles',
-            'todaysTrips'
+            'todaysSchedules',
+            'todaysTrips' // Kirim data trip terpisah
         ));
     }
 }

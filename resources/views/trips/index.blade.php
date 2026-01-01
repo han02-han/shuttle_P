@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container-fluid px-0">
 
     {{-- 1. HEADER & FILTER --}}
@@ -158,9 +160,12 @@
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     
-                                    <form action="{{ route('trips.destroy', $trip->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus riwayat perjalanan ini? Data presensi siswa di dalamnya akan ikut terhapus.');">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Riwayat">
+                                    {{-- FORM HAPUS DENGAN VALIDASI SWEETALERT --}}
+                                    <form action="{{ route('trips.destroy', $trip->id) }}" method="POST" id="delete-form-{{ $trip->id }}">
+                                        @csrf 
+                                        @method('DELETE')
+                                        {{-- Type button, onclick memanggil fungsi JS --}}
+                                        <button type="button" onclick="confirmDeleteTrip('{{ $trip->id }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Riwayat">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -215,5 +220,31 @@
         100% { opacity: 1; }
     }
     .blink-soft { animation: blink-soft 2s infinite; }
+
+    /* SweetAlert Custom Font */
+    .swal2-popup {
+        font-family: inherit !important;
+        border-radius: 16px !important;
+    }
 </style>
+
+<script>
+    function confirmDeleteTrip(id) {
+        Swal.fire({
+            title: 'Hapus Riwayat?',
+            text: "Data presensi siswa di dalamnya akan ikut terhapus permanen!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626', // Merah
+            cancelButtonColor: '#6c757d',  // Abu-abu
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+</script>
 @endsection

@@ -29,21 +29,15 @@
                     <div class="fw-bold text-dark text-truncate" style="max-width: 150px;">{{ Auth::user()->name ?? 'Admin' }}</div>
                     <small class="text-muted" style="font-size: 0.75rem;">Administrator</small>
                 </li>
-                <li>
-                    <a class="dropdown-item py-2 rounded-3" href="#">
-                        <i class="bi bi-person me-2 text-primary bg-primary bg-opacity-10 p-1 rounded"></i> Profil Saya
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item py-2 rounded-3" href="#">
-                        <i class="bi bi-gear me-2 text-primary bg-primary bg-opacity-10 p-1 rounded"></i> Pengaturan
-                    </a>
-                </li>
                 <li><hr class="dropdown-divider my-2"></li>
+                
+                {{-- MODIFIKASI LOGOUT DI SINI --}}
                 <li>
-                    <form action="{{ route('logout') }}" method="POST">
+                    {{-- 1. Tambahkan ID unik: logoutFormMobileNav --}}
+                    <form action="{{ route('logout') }}" method="POST" id="logoutFormMobileNav">
                         @csrf
-                        <button type="submit" class="dropdown-item py-2 text-danger rounded-3">
+                        {{-- 2. Ubah type="submit" jadi type="button" dan tambah onclick --}}
+                        <button type="button" onclick="confirmLogoutMobile()" class="dropdown-item py-2 text-danger rounded-3">
                             <i class="bi bi-box-arrow-right me-2 bg-danger bg-opacity-10 p-1 rounded"></i> Keluar
                         </button>
                     </form>
@@ -76,4 +70,32 @@
         from { opacity: 0; transform: translateY(-15px) scale(0.96); }
         to { opacity: 1; transform: translateY(0) scale(1); }
     }
+    
+    /* Custom style untuk popup SweetAlert agar fontnya sama */
+    .swal2-popup {
+        font-family: inherit !important;
+        border-radius: 16px !important;
+    }
 </style>
+
+<script>
+    // FUNGSI KONFIRMASI LOGOUT
+    function confirmLogoutMobile() {
+        Swal.fire({
+            title: 'Konfirmasi Keluar',
+            text: "Apakah Anda yakin ingin mengakhiri sesi?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626', // Warna Merah
+            cancelButtonColor: '#6c757d',  // Warna Abu-abu/Secondary
+            confirmButtonText: 'Ya, Keluar!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Submit form berdasarkan ID
+                document.getElementById('logoutFormMobileNav').submit();
+            }
+        });
+    }
+</script>

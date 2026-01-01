@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
 @section('content')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <div class="container-fluid px-0">
 
     {{-- 1. HEADER HALAMAN --}}
@@ -32,6 +34,7 @@
                 $schedulesInRoute = $routeSchedules->sortBy(function($s) {
                     return array_search($s->day_of_week, ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']);
                 });
+                $routeName = $firstItem->route->name ?? 'Rute';
             @endphp
 
             <div class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden">
@@ -49,7 +52,7 @@
                                 
                                 {{-- Info Rute --}}
                                 <div class="text-start flex-grow-1">
-                                    <h5 class="fw-bold text-dark mb-1">{{ $firstItem->route->name ?? 'Rute Tidak Dikenal' }}</h5>
+                                    <h5 class="fw-bold text-dark mb-1">{{ $routeName }}</h5>
                                     
                                     <div class="d-flex align-items-center text-muted small gap-3 flex-wrap">
                                         {{-- Driver Info --}}
@@ -86,11 +89,12 @@
                                 <i class="bi bi-pencil-square me-1"></i> <span class="d-none d-lg-inline">Edit Rangkaian</span><span class="d-lg-none">Edit</span>
                             </a>
 
-                            {{-- [BARU] Tombol Hapus Rangkaian --}}
-                            <form action="{{ route('schedules.destroyBulk', $firstItem->id) }}" method="POST" onsubmit="return confirm('PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH RANGKAIAN jadwal ini?\n\nSemua jadwal (Senin-Minggu) untuk Rute, Driver, dan Mobil ini akan dihapus permanen.');">
+                            {{-- [MODIFIKASI] Tombol Hapus Rangkaian (Bulk) --}}
+                            <form action="{{ route('schedules.destroyBulk', $firstItem->id) }}" method="POST" id="form-bulk-{{ $firstItem->id }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger text-white fw-bold shadow-sm text-nowrap rounded-pill px-3" title="Hapus seluruh hari">
+                                {{-- Type button, onclick confirmDeleteBulk --}}
+                                <button type="button" onclick="confirmDeleteBulk('{{ $firstItem->id }}', '{{ $routeName }}')" class="btn btn-danger text-white fw-bold shadow-sm text-nowrap rounded-pill px-3" title="Hapus seluruh hari">
                                     <i class="bi bi-trash me-1"></i> <span class="d-none d-lg-inline">Hapus</span>
                                 </button>
                             </form>
@@ -113,10 +117,11 @@
                                 </thead>
                                 <tbody>
                                     @foreach($schedulesInRoute as $s)
+                                    @php $hariIndo = $indoDays[$s->day_of_week] ?? $s->day_of_week; @endphp
                                     <tr>
                                         <td class="ps-4">
                                             <span class="fw-bold text-dark badge bg-light border text-uppercase px-3 py-2">
-                                                {{ $indoDays[$s->day_of_week] ?? $s->day_of_week }}
+                                                {{ $hariIndo }}
                                             </span>
                                         </td>
                                         <td>
@@ -160,9 +165,12 @@
                                                 <a href="{{ route('schedules.edit', $s->id) }}" class="btn btn-sm btn-light text-primary border shadow-sm rounded-start" title="Edit Hari Ini">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
-                                                <form action="{{ route('schedules.destroy', $s->id) }}" method="POST" onsubmit="return confirm('Hapus jadwal hari {{ $indoDays[$s->day_of_week] ?? $s->day_of_week }}?');">
+
+                                                {{-- [MODIFIKASI] Tombol Hapus Single --}}
+                                                <form action="{{ route('schedules.destroy', $s->id) }}" method="POST" id="form-single-{{ $s->id }}">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Jadwal">
+                                                    {{-- Type button, onclick confirmDeleteSingle --}}
+                                                    <button type="button" onclick="confirmDeleteSingle('{{ $s->id }}', '{{ $hariIndo }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Jadwal">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
@@ -212,9 +220,54 @@
         background-color: #fff;
     }
     
-    /* Spacing tabel */
     .table > :not(caption) > * > * {
         padding: 1rem 0.75rem;
     }
+
+    /* SweetAlert Custom Font */
+    .swal2-popup {
+        font-family: inherit !important;
+        border-radius: 16px !important;
+    }
 </style>
+
+<script>
+    // 1. VALIDASI HAPUS RANGKAIAN (BULK DELETE)
+    function confirmDeleteBulk(id, routeName) {
+        Swal.fire({
+            title: 'Hapus Rangkaian Jadwal?',
+            html: `Anda akan menghapus SELURUH jadwal untuk <b>${routeName}</b>.<br><br>Semua jadwal (Senin-Minggu) pada rute ini akan dihapus permanen.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626', // Warna Merah
+            cancelButtonColor: '#6c757d',  // Warna Abu-abu
+            confirmButtonText: 'Ya, Hapus Semuanya!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('form-bulk-' + id).submit();
+            }
+        });
+    }
+
+    // 2. VALIDASI HAPUS SATUAN (SINGLE DELETE)
+    function confirmDeleteSingle(id, dayName) {
+        Swal.fire({
+            title: 'Hapus Jadwal?',
+            text: `Apakah Anda yakin ingin menghapus jadwal hari ${dayName}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('form-single-' + id).submit();
+            }
+        });
+    }
+</script>
 @endsection

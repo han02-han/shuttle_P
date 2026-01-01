@@ -13,10 +13,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     {{-- AOS Animation CSS --}}
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <style>
         :root {
-            /* Palette Warna Baru Modern */
+            /* Palette Warna */
             --primary: #4361ee; 
             --primary-light: #4895ef;
             --secondary: #4cc9f0;
@@ -65,7 +65,6 @@
             color: var(--primary) !important;
         }
         
-        /* Garis bawah animasi pada menu */
         .nav-link::after {
             content: '';
             position: absolute;
@@ -81,7 +80,7 @@
             width: 100%;
         }
 
-        /* Tombol Login */
+        /* Tombol Login (Biru) - Style Referensi */
         .btn-login {
             background: linear-gradient(45deg, var(--primary), var(--primary-light));
             color: white;
@@ -108,7 +107,6 @@
             overflow: hidden;
         }
 
-        /* Hiasan Background (Blobs) */
         .shape-blob {
             position: absolute;
             background: linear-gradient(45deg, rgba(67, 97, 238, 0.15), rgba(72, 149, 239, 0.15));
@@ -172,10 +170,7 @@
             box-shadow: 0 15px 35px rgba(67, 97, 238, 0.2);
         }
 
-        /* Animasi Gambar Mengambang */
-        .floating-img {
-            animation: float 6s ease-in-out infinite;
-        }
+        .floating-img { animation: float 6s ease-in-out infinite; }
 
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -201,9 +196,7 @@
             height: 80px;
         }
 
-        .wave-bottom .shape-fill {
-            fill: #ffffff;
-        }
+        .wave-bottom .shape-fill { fill: #ffffff; }
 
         /* --- Features Section --- */
         .features-section {
@@ -225,7 +218,6 @@
             z-index: 1;
         }
         
-        /* Efek hover border gradient */
         .feature-card::before {
             content: "";
             position: absolute;
@@ -262,9 +254,7 @@
             transition: transform 0.5s;
         }
         
-        .feature-card:hover .icon-box {
-            transform: rotateY(360deg);
-        }
+        .feature-card:hover .icon-box { transform: rotateY(360deg); }
 
         .icon-blue { background: rgba(67, 97, 238, 0.1); color: var(--primary); }
         .icon-cyan { background: rgba(76, 201, 240, 0.1); color: #00b4d8; }
@@ -287,6 +277,36 @@
             opacity: 0.3;
         }
 
+        /* --- BUTTON KONTAK KUNING (Gaya persis seperti tombol Masuk Aplikasi) --- */
+        .btn-contact-yellow {
+            background: linear-gradient(45deg, #ffc107, #ff9800); /* Warna Kuning Gradient */
+            color: white;
+            padding: 0.8rem 2.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; /* Jarak icon dan text */
+            font-size: 1rem;
+            min-width: 160px; /* Supaya seragam lebarnya */
+        }
+
+        .btn-contact-yellow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.6);
+            color: white;
+            filter: brightness(1.1);
+        }
+
+        .btn-contact-yellow i {
+            font-size: 1.2rem; /* Ukuran icon sedikit lebih besar */
+        }
+        
         /* --- Footer --- */
         footer {
             background-color: var(--dark);
@@ -341,6 +361,8 @@
             .hero-title { font-size: 2.2rem; }
             .btn-hero-primary, .btn-hero-secondary { width: 100%; margin-bottom: 10px; }
             .d-flex.gap-3 { flex-direction: column; gap: 0.5rem !important; }
+            /* Agar tombol full width di HP */
+            .btn-contact-yellow { width: 100%; }
         }
     </style>
 </head>
@@ -399,7 +421,7 @@
                     </h1>
                     
                     <p class="hero-desc">
-                        Solusi digital untuk orang tua modern. Pantau lokasi anak secara real-time, terima notifikasi instan, dan pastikan perjalanan sekolah yang aman.
+                        Solusi digital untuk orang tua modern. Pantau Proses menuju sekolah anak secara real-time, terima notifikasi instan, dan pastikan perjalanan sekolah yang aman.
                     </p>
                     
                     <div class="d-flex gap-3 align-items-center">
@@ -410,32 +432,29 @@
                             Pelajari Fitur
                         </a>
                     </div>
-
-                    {{-- Mini Stats --}}
-                    
                 </div>
-<div class="col-lg-6 hero-img-wrapper mt-5 mt-lg-0" data-aos="fade-left" data-aos-delay="200">
-    <div class="position-relative text-center">
-        
-        {{-- GAMBAR BANNER UTAMA --}}
-        {{-- Menggunakan style rounded dan border putih agar terlihat rapi --}}
-        <img src="{{ asset('images/baner.jpg') }}" 
-             alt="Banner Shuttle School" 
-             class="img-fluid rounded-4 shadow-lg floating-img position-relative z-2"
-             style="width: 100%; max-width: 500px; border: 6px solid rgba(255,255,255,0.9); object-fit: cover;">
-        
-        {{-- Widget Floating: Status (Opsional, pemanis) --}}
-        <div class="position-absolute top-0 end-0 translate-middle p-3 bg-white rounded-4 shadow-lg d-none d-md-block floating-img" 
-             style="animation-delay: 1s; z-index: 3; right: 5% !important;">
-            <div class="d-flex align-items-center gap-3">
-                <div class="p-2 rounded-circle text-primary bg-primary bg-opacity-10">
-                    <i class="bi bi-shield-check fs-4"></i>
+                <div class="col-lg-6 hero-img-wrapper mt-5 mt-lg-0" data-aos="fade-left" data-aos-delay="200">
+                    <div class="position-relative text-center">
+                        {{-- GAMBAR BANNER UTAMA --}}
+                        <img src="{{ asset('images/baner.jpg') }}" 
+                             alt="Banner Shuttle School" 
+                             class="img-fluid rounded-4 shadow-lg floating-img position-relative z-2"
+                             style="width: 100%; max-width: 500px; border: 6px solid rgba(255,255,255,0.9); object-fit: cover;">
+                        
+                        {{-- Widget Floating --}}
+                        <div class="position-absolute top-0 end-0 translate-middle p-3 bg-white rounded-4 shadow-lg d-none d-md-block floating-img" 
+                             style="animation-delay: 1s; z-index: 3; right: 5% !important;">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="p-2 rounded-circle text-primary bg-primary bg-opacity-10">
+                                    <i class="bi bi-shield-check fs-4"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-    </div>
-</div>
         {{-- SVG Curve Separator --}}
         <div class="wave-bottom">
             <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -454,18 +473,6 @@
             </div>
 
             <div class="row g-4">
-                {{-- Fitur 1 --}}
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="feature-card">
-                        <div class="icon-box icon-blue">
-                            <i class="bi bi-map-fill"></i>
-                        </div>
-                        <h4 class="fw-bold mb-3">Real-time GPS</h4>
-                        <p class="text-muted mb-0">Tak perlu cemas menunggu. Pantau posisi kendaraan penjemput secara langsung (live) melalui peta digital yang akurat.</p>
-                    </div>
-                </div>
-
-                {{-- Fitur 2 --}}
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="feature-card">
                         <div class="icon-box icon-cyan">
@@ -475,8 +482,15 @@
                         <p class="text-muted mb-0">Terima notifikasi otomatis saat anak dijemput, sedang dalam perjalanan, hingga tiba dengan selamat di sekolah.</p>
                     </div>
                 </div>
-
-                {{-- Fitur 3 --}}
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card">
+                        <div class="icon-box icon-blue">
+                            <i class="bi bi-map-fill"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Riwayat Lengkap</h4>
+                        <p class="text-muted mb-0">Akses data riwayat perjalanan siswa secara transparan dan tercatat rapi untuk keamanan dan evaluasi layanan.</p>
+                    </div>
+                </div>
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="feature-card">
                         <div class="icon-box icon-pink">
@@ -491,16 +505,34 @@
     </section>
 
     {{-- CTA SECTION --}}
-    <section class="cta-section">
+    <section id="kontak" class="cta-section">
         <div class="cta-pattern"></div>
         <div class="container position-relative z-2 text-center" data-aos="zoom-in">
             <h2 class="fw-bold mb-3 display-5">Siap Bergabung dengan Kami?</h2>
             <p class="mb-5 opacity-75 fs-5 mx-auto" style="max-width: 600px;">
                 Tingkatkan keamanan perjalanan sekolah anak Anda dengan teknologi terkini. Daftar sekarang dan rasakan ketenangannya.
             </p>
-            <a href="{{ route('login') }}" class="btn btn-warning btn-lg rounded-pill fw-bold px-5 py-3 shadow-lg" style="color: var(--dark)">
-                Masuk ke Aplikasi <i class="bi bi-box-arrow-in-right ms-2"></i>
-            </a>
+            
+            {{-- BAGIAN KONTAK CTA (TOMBOL KUNING - GAYA PERSIS LOGIN) --}}
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                
+                {{-- 1. Instagram --}}
+                <a href="https://instagram.com/suttleapp_official" target="_blank" class="btn-contact-yellow">
+                    <i class="bi bi-instagram"></i> @hepigo.app
+                </a>
+
+                {{-- 2. WhatsApp / No HP --}}
+                <a href="https://wa.me/6281234567890" target="_blank" class="btn-contact-yellow">
+                    <i class="bi bi-whatsapp"></i> 08xx-xxx-xxx
+                </a>
+
+                {{-- 3. Email --}}
+                <a href="mailto:support@hepigo.com" class="btn-contact-yellow">
+                    <i class="bi bi-envelope"></i> hepigo@gmail.com
+                </a>
+
+            </div>
+            {{-- END KONTAK --}}
         </div>
         
         {{-- Top Wave for Footer Transition --}}
@@ -512,16 +544,14 @@
     </section>
 
     {{-- FOOTER --}}
-    <footer id="kontak">
+    <footer>
         <div class="container">
             <div class="row gy-5">
-                <div class="col-lg-4 col-md-6">
-                    {{-- LOGO SAJA (Versi Putih) --}}
+                {{-- KOLOM 1: Brand & Logo --}}
+                <div class="col-lg-5 col-md-6">
                     <div class="mb-4">
                         <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height: 50px; filter: brightness(0) invert(1);">
-                        {{-- NOTE: Hapus 'filter: ...' jika logo Anda sudah berwarna putih/cerah --}}
                     </div>
-
                     <p class="text-secondary pe-lg-5">
                         Platform manajemen transportasi sekolah modern yang menghubungkan Sekolah, Driver, dan Orang Tua untuk perjalanan yang lebih aman.
                     </p>
@@ -533,7 +563,8 @@
                     </div>
                 </div>
                 
-                <div class="col-lg-2 col-md-6">
+                {{-- KOLOM 2: Navigasi --}}
+                <div class="col-lg-3 col-md-6">
                     <h5 class="text-white mb-4 fw-semibold">Navigasi</h5>
                     <ul class="list-unstyled">
                         <li><a href="#beranda" class="footer-link">Beranda</a></li>
@@ -543,29 +574,14 @@
                     </ul>
                 </div>
                 
-                <div class="col-lg-3 col-md-6">
+                {{-- KOLOM 3: Akses Pengguna --}}
+                <div class="col-lg-4 col-md-6">
                     <h5 class="text-white mb-4 fw-semibold">Akses Pengguna</h5>
                     <ul class="list-unstyled">
                         <li><a href="{{ route('login') }}" class="footer-link">Login Orang Tua</a></li>
                         <li><a href="{{ route('login') }}" class="footer-link">Login Driver</a></li>
                         <li><a href="{{ route('admin.login') }}" class="footer-link">Login Administrator</a></li>
                     </ul>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="text-white mb-4 fw-semibold">Hubungi Kami</h5>
-                    <div class="d-flex mb-3">
-                        <i class="bi bi-geo-alt me-3 text-primary fs-5"></i>
-                        <span class="text-secondary">Jl. Pramuka, Bengkalis, Riau</span>
-                    </div>
-                    <div class="d-flex mb-3">
-                        <i class="bi bi-envelope me-3 text-primary fs-5"></i>
-                        <span class="text-secondary">support@hepigo.com</span>
-                    </div>
-                    <div class="d-flex">
-                        <i class="bi bi-telephone me-3 text-primary fs-5"></i>
-                        <span class="text-secondary">+62 812 3456 7890</span>
-                    </div>
                 </div>
             </div>
             
@@ -581,15 +597,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <script>
-        // Init Animation
-        AOS.init({
-            once: false, 
-            mirror: true,
-            duration: 800,
-            offset: 50,
-        });
-
-        // Navbar Blur Effect on Scroll
+        AOS.init({ once: false, mirror: true, duration: 800, offset: 50 });
         window.addEventListener('scroll', function() {
             const navbar = document.getElementById('mainNav');
             if (window.scrollY > 50) {
