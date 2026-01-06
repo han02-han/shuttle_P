@@ -13,10 +13,35 @@
             </h3>
             <p class="text-muted mb-0">Daftar rute penjemputan dan cakupan area komplek.</p>
         </div>
-        <a href="{{ route('routes.create') }}" class="btn btn-primary rounded-pill shadow-sm px-4 fw-bold">
-            <i class="bi bi-plus-lg me-2"></i> Tambah Rute
-        </a>
+
+        {{-- BAGIAN BARU: FORM PENCARIAN & TOMBOL TAMBAH --}}
+        <div class="d-flex gap-2">
+            <form action="{{ route('routes.index') }}" method="GET" class="d-flex">
+                <div class="input-group shadow-sm">
+                    <input type="text" name="search" class="form-control border-end-0 rounded-start-pill ps-3" 
+                           placeholder="Cari rute / wilayah..." 
+                           value="{{ request('search') }}" 
+                           style="max-width: 250px;">
+                    <button class="btn btn-white bg-white border border-start-0 rounded-end-pill text-muted pe-3" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <a href="{{ route('routes.create') }}" class="btn btn-primary rounded-pill shadow-sm px-4 fw-bold">
+                <i class="bi bi-plus-lg me-2"></i> Tambah Rute
+            </a>
+        </div>
     </div>
+
+    {{-- INFO FILTER: Tampilkan jika sedang mencari --}}
+    @if(request('search'))
+        <div class="alert alert-light border shadow-sm d-inline-flex align-items-center mb-3 py-2 px-3 rounded-pill">
+            <i class="bi bi-info-circle text-primary me-2"></i>
+            <span class="text-muted small me-2">Menampilkan hasil pencarian untuk: <strong>"{{ request('search') }}"</strong></span>
+            <a href="{{ route('routes.index') }}" class="btn-close ms-2" aria-label="Close" title="Reset Pencarian"></a>
+        </div>
+    @endif
 
     {{-- 2. TABEL CARD --}}
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
@@ -79,10 +104,8 @@
                                     </a>
                                     
                                     {{-- FORM HAPUS DENGAN VALIDASI SWEETALERT --}}
-                                    {{-- 1. Beri ID unik pada form --}}
                                     <form action="{{ route('routes.destroy', $route->id) }}" method="POST" class="d-inline" id="delete-form-{{ $route->id }}">
                                         @csrf @method('DELETE')
-                                        {{-- 2. Ubah type jadi button dan tambah onclick --}}
                                         <button type="button" onclick="confirmDeleteRoute('{{ $route->id }}', '{{ $route->name }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Rute">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -95,10 +118,26 @@
                             <td colspan="4" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center justify-content-center opacity-50">
                                     <div class="bg-light rounded-circle p-3 mb-3">
-                                        <i class="bi bi-map display-4 text-secondary"></i>
+                                        @if(request('search'))
+                                            <i class="bi bi-search display-4 text-secondary"></i>
+                                        @else
+                                            <i class="bi bi-map display-4 text-secondary"></i>
+                                        @endif
                                     </div>
-                                    <h5 class="fw-bold text-secondary">Data Rute Kosong</h5>
-                                    <p class="text-muted small mb-0">Silakan tambahkan rute perjalanan baru.</p>
+                                    <h5 class="fw-bold text-secondary">
+                                        @if(request('search'))
+                                            Pencarian Tidak Ditemukan
+                                        @else
+                                            Data Rute Kosong
+                                        @endif
+                                    </h5>
+                                    <p class="text-muted small mb-0">
+                                        @if(request('search'))
+                                            Tidak ada rute atau wilayah yang cocok dengan "<strong>{{ request('search') }}</strong>".
+                                        @else
+                                            Silakan tambahkan rute perjalanan baru.
+                                        @endif
+                                    </p>
                                 </div>
                             </td>
                         </tr>
@@ -131,6 +170,11 @@
     .swal2-popup {
         font-family: inherit !important;
         border-radius: 16px !important;
+    }
+    
+    /* Styling tambahan untuk tombol search agar menyatu */
+    .btn-white:hover {
+        background-color: #f8f9fa !important;
     }
 </style>
 

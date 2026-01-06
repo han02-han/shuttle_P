@@ -129,7 +129,7 @@
                                                 @if($s->pickup_time)
                                                     <div class="d-flex align-items-center">
                                                         <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill me-2 px-2 fw-normal" style="width: 85px;">
-                                                            <i class="bi bi-sun-fill me-1"></i> Pagi
+                                                            <i class="bi bi-sun-fill me-1"></i> Pergi 
                                                         </span>
                                                         <span class="fw-bold text-dark font-monospace">{{ \Carbon\Carbon::parse($s->pickup_time)->format('H:i') }}</span>
                                                     </div>
@@ -137,7 +137,7 @@
                                                 @if($s->dropoff_time)
                                                     <div class="d-flex align-items-center">
                                                         <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill me-2 px-2 fw-normal" style="width: 85px;">
-                                                            <i class="bi bi-moon-stars-fill me-1"></i> Sore
+                                                            <i class="bi bi-moon-stars-fill me-1"></i> Pulang
                                                         </span>
                                                         <span class="fw-bold text-dark font-monospace">{{ \Carbon\Carbon::parse($s->dropoff_time)->format('H:i') }}</span>
                                                     </div>

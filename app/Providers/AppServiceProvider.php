@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Carbon; // Tambahkan library waktu
+use Illuminate\Pagination\Paginator; // [1] Import Paginator
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // [2] Gunakan Paginator Bootstrap 5 agar tampilan rapi
+        Paginator::useBootstrapFive();
+
         // 1. Atur Lokalisasi Carbon ke Indonesia (Senin, Selasa, Januari...)
         config(['app.locale' => 'id']);
         Carbon::setLocale('id');

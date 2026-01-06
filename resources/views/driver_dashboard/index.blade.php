@@ -172,9 +172,9 @@
             <div class="task-header {{ $schedule->type == 'pickup' ? 'header-pickup' : 'header-dropoff' }}">
                 <div class="d-flex align-items-center gap-2">
                     @if($schedule->type == 'pickup')
-                        <i class="bi bi-sun-fill"></i> <span class="fw-bold small">JEMPUT PAGI</span>
+                        <i class="bi bi-sun-fill"></i> <span class="fw-bold small">JEMPUT</span>
                     @else
-                        <i class="bi bi-moon-stars-fill"></i> <span class="fw-bold small">ANTAR SORE</span>
+                        <i class="bi bi-moon-stars-fill"></i> <span class="fw-bold small">ANTAR</span>
                     @endif
                 </div>
                 

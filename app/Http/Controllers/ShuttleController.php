@@ -7,10 +7,27 @@ use Illuminate\Http\Request;
 
 class ShuttleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // withCount akan menghitung berapa kali mobil ini muncul di tabel 'schedules'
-        $shuttles = Shuttle::withCount('schedules')->get();
+        // 1. Inisialisasi query dasar
+        // PERBAIKAN: Tambahkan with(['schedules.driver']) agar data driver terambil untuk tampilan index
+        $query = Shuttle::with(['schedules.driver'])->withCount('schedules');
+
+        // 2. Logika Pencarian: Cek apakah ada input 'search'
+        if ($request->filled('search')) {
+            $search = $request->search;
+            
+            // Filter berdasarkan Plat Nomor ATAU Model Mobil
+            $query->where(function($q) use ($search) {
+                $q->where('plate_number', 'like', "%{$search}%")
+                  ->orWhere('car_model', 'like', "%{$search}%");
+            });
+        }
+
+        // 3. Eksekusi query (menggunakan latest() agar data baru muncul paling atas)
+        // Gunakan get() sesuai kode Anda (atau paginate(10) jika ingin pembagian halaman)
+        $shuttles = $query->latest()->get();
+
         return view('shuttles.index', compact('shuttles'));
     }
 

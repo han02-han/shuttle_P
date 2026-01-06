@@ -111,16 +111,20 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group">
-                                    <a href="{{ route('students.edit', $student->id) }}" class="btn btn-sm btn-light text-primary border shadow-sm rounded-start" title="Edit Data">
+                                    {{-- 1. Tombol Lihat Detail (BARU) --}}
+                                    <a href="{{ route('students.show', $student->id) }}" class="btn btn-sm btn-light text-primary border shadow-sm rounded-start" title="Lihat Detail">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    {{-- 2. Tombol Edit --}}
+                                    <a href="{{ route('students.edit', $student->id) }}" class="btn btn-sm btn-light text-warning border border-start-0 shadow-sm" title="Edit Data">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     
-                                    {{-- FORM HAPUS DENGAN VALIDASI SWEETALERT --}}
-                                    {{-- 1. Beri ID unik pada form --}}
+                                    {{-- 3. Tombol Hapus --}}
                                     <form action="{{ route('students.destroy', $student->id) }}" method="POST" class="d-inline" id="delete-form-{{ $student->id }}">
                                         @csrf @method('DELETE')
-                                        {{-- 2. Ubah type jadi button dan tambah onclick --}}
-                                        <button type="button" onclick="confirmDeleteStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn btn-sm btn-light text-danger border shadow-sm rounded-end border-start-0" title="Hapus Siswa">
+                                        <button type="button" onclick="confirmDeleteStudent('{{ $student->id }}', '{{ $student->name }}')" class="btn btn-sm btn-light text-danger border border-start-0 shadow-sm rounded-end" title="Hapus Siswa">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>

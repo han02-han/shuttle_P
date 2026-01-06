@@ -10,6 +10,11 @@
             <p class="text-muted mb-0">ID Sistem: <span class="badge bg-secondary">#{{ $student->id }}</span></p>
         </div>
         <div class="d-flex gap-2">
+            {{-- TOMBOL KEMBALI (BARU) --}}
+            <a href="{{ url()->previous() }}" class="btn btn-secondary shadow-sm rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Kembali
+            </a>
+
             <a href="{{ route('students.search') }}" class="btn btn-light border shadow-sm rounded-pill px-4">
                 <i class="bi bi-search me-1"></i> Cari Lain
             </a>

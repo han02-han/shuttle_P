@@ -3,25 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complex;
-use App\Models\Route; // <--- Pastikan Model Route di-import
+use App\Models\Route; 
 use Illuminate\Http\Request;
 
 class ComplexController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Tampilkan komplek beserta nama rutenya
-        $complexes = Complex::with('route')->orderBy('name')->get();
+        // 1. Inisialisasi query dengan relation route
+        $query = Complex::with('route');
+
+        // 2. Logika Pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            
+            $query->where(function($q) use ($search) {
+                // Cari berdasarkan Nama Komplek
+                $q->where('name', 'like', "%{$search}%")
+                  // ATAU Cari berdasarkan Nama Rute (Relasi)
+                  ->orWhereHas('route', function($qRoute) use ($search) {
+                      $qRoute->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // 3. Ambil data (urutkan berdasarkan nama komplek)
+        $complexes = $query->orderBy('name')->get();
+        
         return view('complexes.index', compact('complexes'));
     }
 
-    // --- PERBAIKAN DISINI ---
     public function create()
     {
-        // Ambil semua data rute untuk dropdown
         $routes = Route::orderBy('name')->get(); 
-        
-        // Kirim variable $routes ke view
         return view('complexes.create', compact('routes')); 
     }
 
@@ -29,7 +43,7 @@ class ComplexController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'route_id' => 'required|exists:routes,id', // Wajib pilih rute
+            'route_id' => 'required|exists:routes,id',
         ]);
 
         Complex::create($request->all());

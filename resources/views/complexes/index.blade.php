@@ -14,9 +14,36 @@
             </h3>
             <p class="text-muted mb-0">Manajemen lokasi tempat tinggal siswa yang terdaftar.</p>
         </div>
-        <a href="{{ route('complexes.create') }}" class="btn btn-primary rounded-pill shadow-sm px-4 fw-bold">
-            <i class="bi bi-plus-lg me-2"></i> Tambah Komplek
-        </a>
+
+        {{-- AREA TOMBOL & PENCARIAN --}}
+        <div class="d-flex gap-2 align-items-center">
+            
+            {{-- FORM PENCARIAN --}}
+            <form action="{{ route('complexes.index') }}" method="GET" class="d-flex position-relative">
+                <div class="input-group">
+                    <input type="text" 
+                           name="search" 
+                           class="form-control border-end-0 rounded-start-pill ps-3" 
+                           placeholder="Cari Komplek / Rute..." 
+                           value="{{ request('search') }}"
+                           style="max-width: 200px;">
+                    <button class="btn btn-white border border-start-0 rounded-end-pill text-secondary" type="submit" title="Cari">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+
+                {{-- TOMBOL RESET (Hanya muncul jika sedang mencari) --}}
+                @if(request('search'))
+                    <a href="{{ route('complexes.index') }}" class="btn btn-light border text-danger rounded-pill ms-2" title="Reset Pencarian">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                @endif
+            </form>
+
+            <a href="{{ route('complexes.create') }}" class="btn btn-primary rounded-pill shadow-sm px-4 fw-bold">
+                <i class="bi bi-plus-lg me-2"></i> Tambah Komplek
+            </a>
+        </div>
     </div>
 
 
@@ -83,10 +110,27 @@
                             <td colspan="3" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center justify-content-center opacity-50">
                                     <div class="bg-light rounded-circle p-3 mb-3">
-                                        <i class="bi bi-buildings display-4 text-secondary"></i>
+                                        @if(request('search'))
+                                            <i class="bi bi-search display-4 text-secondary"></i>
+                                        @else
+                                            <i class="bi bi-buildings display-4 text-secondary"></i>
+                                        @endif
                                     </div>
-                                    <h5 class="fw-bold text-secondary">Data Kosong</h5>
-                                    <p class="text-muted small mb-0">Belum ada data komplek perumahan.</p>
+                                    <h5 class="fw-bold text-secondary">
+                                        @if(request('search'))
+                                            Data tidak ditemukan
+                                        @else
+                                            Data Kosong
+                                        @endif
+                                    </h5>
+                                    <p class="text-muted small mb-0">
+                                        @if(request('search'))
+                                            Tidak ada komplek/rute dengan kata kunci "<strong>{{ request('search') }}</strong>". <br>
+                                            <a href="{{ route('complexes.index') }}" class="text-decoration-none fw-bold">Reset Pencarian</a>
+                                        @else
+                                            Belum ada data komplek perumahan.
+                                        @endif
+                                    </p>
                                 </div>
                             </td>
                         </tr>
@@ -110,6 +154,8 @@
     /* Styling agar baris tabel nyaman dibaca */
     .table > :not(caption) > * > * { padding: 1rem 0.5rem; }
     .table-hover tbody tr:hover { background-color: #f8f9fa; }
+    /* SweetAlert Custom Font */
+    .swal2-popup { font-family: inherit !important; border-radius: 16px !important; }
 </style>
 
 {{-- SCRIPT VALIDASI DELETE --}}

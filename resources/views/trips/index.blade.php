@@ -103,11 +103,11 @@
                                     <div class="mt-1 ms-4">
                                         @if($trip->type == 'pickup')
                                             <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-2 fw-normal">
-                                                <i class="bi bi-sun-fill me-1"></i> Pagi (Jemput)
+                                                <i class="bi bi-sun-fill me-1"></i> (Jemput)
                                             </span>
                                         @else
                                             <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-2 fw-normal">
-                                                <i class="bi bi-moon-stars-fill me-1"></i> Sore (Antar)
+                                                <i class="bi bi-moon-stars-fill me-1"></i> (Antar)
                                             </span>
                                         @endif
                                     </div>

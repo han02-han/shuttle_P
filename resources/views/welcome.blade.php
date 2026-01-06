@@ -411,8 +411,8 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 hero-content" data-aos="fade-right" data-aos-duration="1000">
                     <div class="d-inline-flex align-items-center bg-white px-3 py-1 rounded-pill shadow-sm border mb-4">
-                        <span class="badge bg-primary rounded-pill me-2">BARU</span>
-                        <span class="small fw-medium text-secondary">Aplikasi Monitoring Sekolah #1</span>
+                        <span class="badge bg-primary rounded-pill me-2">HEPIGO</span>
+                        <span class="small fw-medium text-secondary">Monitoring Antar Jemput Sekolah</span>
                     </div>
                     
                     <h1 class="hero-title">
