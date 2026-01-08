@@ -256,13 +256,6 @@
                     MASUK PENGGUNA <i class="bi bi-arrow-right ms-2"></i>
                 </button>
             </form>
-            
-            <div class="text-center mt-4 pt-3 border-top">
-                <span class="text-muted small">Anda Admin Sekolah?</span>
-                <a href="{{ route('admin.login') }}" class="link-admin text-decoration-none ms-1 fw-bold">
-                    Login Admin <i class="bi bi-shield-lock ms-1"></i>
-                </a>
-            </div>
         </div>
     </div>
 

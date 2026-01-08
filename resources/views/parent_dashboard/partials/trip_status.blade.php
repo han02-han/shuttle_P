@@ -3,7 +3,7 @@
     <div class="bg-light rounded-3 p-3 mb-3 border border-light">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="badge {{ $tripData->trip->type == 'pickup' ? 'bg-warning text-dark' : 'bg-info text-white' }}">
-                {{ $tripData->trip->type == 'pickup' ? 'Rute Pagi' : 'Rute Sore' }}
+                {{ $tripData->trip->type == 'pickup' ? 'Berangkat ke Sekolah' : 'Pulang ke Rumah' }}
             </span>
             <span class="fw-bold text-dark small">{{ $tripData->trip->route->name }}</span>
         </div>

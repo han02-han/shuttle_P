@@ -3,7 +3,6 @@
 @section('content')
 <div class="container py-4">
     
-    <!-- Page Header -->
     <div class="page-header mb-4">
         <div class="d-flex align-items-center">
             <div class="header-icon me-3">
@@ -16,7 +15,6 @@
         </div>
     </div>
 
-    <!-- Container Card (Menggantikan Route Card) -->
     <div class="route-card mb-4">
         <div class="route-header">
             <div class="d-flex align-items-center">
@@ -34,7 +32,6 @@
                     <div class="student-item">
                         <div class="d-flex align-items-center">
                             
-                            <!-- Student Avatar -->
                             <div class="student-avatar me-3">
                                 @if($student->photo)
                                     <img src="{{ asset('storage/' . $student->photo) }}" alt="{{ $student->name }}">
@@ -45,7 +42,6 @@
                                 @endif
                             </div>
 
-                            <!-- Student Info -->
                             <div class="flex-grow-1 student-info">
                                 <h6 class="student-name">{{ $student->name }}</h6>
                                 
@@ -66,10 +62,17 @@
                                 </div>
                             </div>
 
-                            <!-- WhatsApp Button -->
                             <div>
                                 @if($student->parent && $student->parent->phone)
-                                    <a href="https://wa.me/{{ $student->parent->phone }}" target="_blank" class="btn-whatsapp" title="Hubungi via WhatsApp">
+                                    @php
+                                        // Bersihkan nomor dari spasi/strip
+                                        $phone = preg_replace('/[^0-9]/', '', $student->parent->phone);
+                                        // Ubah 08.. jadi 628..
+                                        if(substr($phone, 0, 1) == '0') {
+                                            $phone = '62' . substr($phone, 1);
+                                        }
+                                    @endphp
+                                    <a href="https://wa.me/{{ $phone }}" target="_blank" class="btn-whatsapp" title="Hubungi via WhatsApp">
                                         <i class="bi bi-whatsapp"></i>
                                     </a>
                                 @else

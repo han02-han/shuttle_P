@@ -53,10 +53,7 @@
         <div class="d-flex align-items-center">
             <div class="title-indicator"></div>
             <h5 class="fw-bold text-dark mb-0">Status Anak Hari Ini</h5>
-            <div id="loading-indicator" class="ms-auto text-primary small d-none">
-                <div class="spinner-border spinner-border-sm" role="status"></div>
-                <span class="ms-1">Memperbarui...</span>
-            </div>
+            {{-- MODIFIKASI: Loading indicator dihapus dari sini --}}
         </div>
     </div>
 
@@ -99,9 +96,8 @@
                                     <div class="trip-section border-end-desktop">
                                         <h6 class="trip-title">
                                             <i class="bi bi-sunrise-fill me-2"></i>
-                                            Penjemputan (Pagi)
+                                            Berangkat (Sekolah)
                                         </h6>
-                                        {{-- MODIFIED: Kirim scheduleData --}}
                                         @include('parent_dashboard.partials.trip_status', [
                                             'tripData' => $student->trip_pagi, 
                                             'scheduleData' => $student->schedule_pagi ?? null,
@@ -114,9 +110,8 @@
                                     <div class="trip-section">
                                         <h6 class="trip-title trip-title-afternoon">
                                             <i class="bi bi-sunset-fill me-2"></i>
-                                            Pengantaran (Sore)
+                                            Pengantaran (Pulang)
                                         </h6>
-                                        {{-- MODIFIED: Kirim scheduleData --}}
                                         @include('parent_dashboard.partials.trip_status', [
                                             'tripData' => $student->trip_sore, 
                                             'scheduleData' => $student->schedule_sore ?? null,
@@ -138,7 +133,7 @@
                                             data-student-id="{{ $student->id }}"
                                             data-type="pagi"
                                             type="button" role="tab">
-                                        <i class="bi bi-sunrise-fill me-1"></i> Pagi
+                                        <i class="bi bi-sunrise-fill me-1"></i> Berangkat
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
@@ -149,14 +144,13 @@
                                             data-student-id="{{ $student->id }}"
                                             data-type="sore"
                                             type="button" role="tab">
-                                        <i class="bi bi-sunset-fill me-1"></i> Sore
+                                        <i class="bi bi-sunset-fill me-1"></i> Pulang
                                     </button>
                                 </li>
                             </ul>
 
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="pagi-{{ $student->id }}" role="tabpanel">
-                                    {{-- MODIFIED --}}
                                     @include('parent_dashboard.partials.trip_status', [
                                         'tripData' => $student->trip_pagi, 
                                         'scheduleData' => $student->schedule_pagi ?? null,
@@ -164,7 +158,6 @@
                                     ])
                                 </div>
                                 <div class="tab-pane fade" id="sore-{{ $student->id }}" role="tabpanel">
-                                    {{-- MODIFIED --}}
                                     @include('parent_dashboard.partials.trip_status', [
                                         'tripData' => $student->trip_sore, 
                                         'scheduleData' => $student->schedule_sore ?? null,
@@ -192,7 +185,6 @@
     <div style="height: 80px;"></div>
 </div>
 
-{{-- SISA STYLE & SCRIPT TETAP SAMA --}}
 <style>
     /* Welcome Header */
     .welcome-header { padding: 2rem; background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04); position: relative; overflow: hidden; transition: all 0.3s ease; }
@@ -236,7 +228,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const REFRESH_INTERVAL = 3000; 
         const containerId = 'auto-refresh-container';
-        const loadingIndicator = document.getElementById('loading-indicator');
+        // Variabel loadingIndicator dihapus agar silent refresh
         let activeTabs = {};
 
         document.addEventListener('click', function(e) {
@@ -248,8 +240,7 @@
         });
 
         setInterval(() => {
-            if(loadingIndicator) loadingIndicator.classList.remove('d-none');
-
+            // Indikator visual dihapus, langsung fetch data
             fetch(window.location.href)
                 .then(response => response.text())
                 .then(html => {
@@ -260,6 +251,8 @@
 
                     if (newContent && currentContainer) {
                         currentContainer.innerHTML = newContent.innerHTML;
+                        
+                        // Kembalikan status tab yang aktif agar tidak reset ke Pagi saat refresh
                         Object.keys(activeTabs).forEach(studentId => {
                             const type = activeTabs[studentId];
                             if(type) {
@@ -278,10 +271,8 @@
                         });
                     }
                 })
-                .catch(err => console.error('Auto refresh error:', err))
-                .finally(() => {
-                    if(loadingIndicator) loadingIndicator.classList.add('d-none');
-                });
+                .catch(err => console.error('Auto refresh error:', err));
+                // .finally block dihapus karena tidak ada indikator yang perlu di-hide
         }, REFRESH_INTERVAL);
     });
 </script>

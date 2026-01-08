@@ -44,7 +44,18 @@
                     <h5 class="fw-bold mb-1 text-dark">{{ $passenger->trip->driver->name }}</h5>
                     <div class="mb-2 text-muted small">Driver Resmi</div>
                     
-                    <a href="https://wa.me/{{ $passenger->trip->driver->phone }}" target="_blank" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                    {{-- LOGIKA FORMAT NOMOR WA (TANPA UBAH MODEL) --}}
+                    @php
+                        $driverPhone = $passenger->trip->driver->phone;
+                        // Hapus karakter selain angka
+                        $driverPhone = preg_replace('/[^0-9]/', '', $driverPhone);
+                        // Jika diawali angka 0, ganti dengan 62
+                        if (substr($driverPhone, 0, 1) == '0') {
+                            $driverPhone = '62' . substr($driverPhone, 1);
+                        }
+                    @endphp
+
+                    <a href="https://wa.me/{{ $driverPhone }}" target="_blank" class="btn btn-success btn-sm rounded-pill px-3 fw-bold shadow-sm">
                         <i class="bi bi-whatsapp me-1"></i> Chat WhatsApp
                     </a>
                 </div>
