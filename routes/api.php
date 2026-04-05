@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
-
+use App\Http\Controllers\Api\DriverApiController;
 
 // Pintu Masuk Umum (Login)
 Route::post('/login', [AuthController::class, 'login']);
@@ -27,24 +27,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // ==========================================
     Route::prefix('driver')->group(function () {
         
-        Route::get('/schedules', function (Request $request) {
-            return response()->json([
-                'status' => 'success',
-                'data' => [
-                    [
-                        'id' => 1, 
-                        'nama_rute' => 'Jemput Pagi - Perumahan Anggrek', 
-                        'jam' => '06:30 WIB'
-                    ],
-                    [
-                        'id' => 2, 
-                        'nama_rute' => 'Jemput Pagi - Perumahan Melati', 
-                        'jam' => '07:15 WIB'
-                    ],
-                ]
-            ]);
-        });
-    });
+        Route::get('/schedules', [DriverApiController::class, 'getSchedules']);
+
+        Route::get('/schedules/{id}/students', [DriverApiController::class, 'getScheduleStudents']);
+        
+    }); // <-- Tadi ada kelebihan penutup di bawah baris ini
 
     // ==========================================
     // JALUR KHUSUS APLIKASI ORANG TUA
